@@ -3,19 +3,17 @@ import xml.etree.ElementTree as ET
 import requests
 import yfinance as yf
 
+# General market indices + crypto
 STOCK_TICKERS = {
     "^GSPC": "S&P 500",
     "^IXIC": "NASDAQ",
     "^DJI": "Dow Jones",
+    "^RUT": "Russell 2000",
+    "^VIX": "VIX",
+    "GC=F": "Gold",
+    "CL=F": "Oil (WTI)",
+    "^TNX": "10-Yr Yield",
 }
-
-CRYPTO_IDS = ["bitcoin", "ethereum", "solana"]
-
-NEWS_FEEDS = [
-    "https://cointelegraph.com/rss",
-    "https://decrypt.co/feed",
-    "https://www.coindesk.com/arc/outboundfeeds/rss/",
-]
 
 COINGECKO_URL = (
     "https://api.coingecko.com/api/v3/simple/price"
@@ -29,6 +27,16 @@ COINGECKO_NAMES = {
     "ethereum": "Ethereum",
     "solana": "Solana",
 }
+
+# Broad mix: finance, world news, crypto
+NEWS_FEEDS = [
+    "https://feeds.finance.yahoo.com/rss/2.0/headline?s=^GSPC&region=US&lang=en-US",
+    "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+    "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
+    "https://rss.nytimes.com/services/xml/rss/nyt/Business.xml",
+    "https://cointelegraph.com/rss",
+    "https://www.coindesk.com/arc/outboundfeeds/rss/",
+]
 
 
 def _fetch_crypto_coingecko() -> dict:
@@ -63,7 +71,6 @@ def _fetch_crypto_yfinance() -> dict:
 def get_market_data() -> dict:
     data = {}
 
-    # Stock indices via yfinance
     for ticker, name in STOCK_TICKERS.items():
         try:
             hist = yf.Ticker(ticker).history(period="2d")
@@ -86,22 +93,20 @@ def get_market_data() -> dict:
     return data
 
 
-def get_crypto_news(max_items: int = 5) -> list[dict]:
+def get_news(max_items: int = 6) -> list[dict]:
     items = []
-    headers = {"User-Agent": "CryptoGort-Bot/1.0"}
+    headers = {"User-Agent": "Mozilla/5.0 (compatible; CryptoGortBot/1.0)"}
     for url in NEWS_FEEDS:
         try:
             resp = requests.get(url, headers=headers, timeout=10)
             resp.raise_for_status()
             root = ET.fromstring(resp.content)
             ns = {"atom": "http://www.w3.org/2005/Atom"}
-            # Atom feeds
-            for entry in root.findall(".//atom:entry", ns)[:3]:
+            for entry in root.findall(".//atom:entry", ns)[:2]:
                 title_el = entry.find("atom:title", ns)
                 if title_el is not None and title_el.text:
                     items.append({"title": title_el.text.strip()})
-            # RSS feeds
-            for item in root.findall(".//item")[:3]:
+            for item in root.findall(".//item")[:2]:
                 title_el = item.find("title")
                 if title_el is not None and title_el.text:
                     items.append({"title": title_el.text.strip()})
@@ -116,5 +121,8 @@ def format_market_summary(data: dict) -> str:
     lines = []
     for name, info in data.items():
         sign = "+" if info["change_pct"] >= 0 else ""
-        lines.append(f"{name}: ${info['price']:,.2f} ({sign}{info['change_pct']:.2f}%)")
+        if name in ("VIX", "10-Yr Yield"):
+            lines.append(f"{name}: {info['price']:.2f} ({sign}{info['change_pct']:.2f}%)")
+        else:
+            lines.append(f"{name}: ${info['price']:,.2f} ({sign}{info['change_pct']:.2f}%)")
     return "\n".join(lines)

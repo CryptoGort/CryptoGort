@@ -17,9 +17,13 @@ def _ask_claude(prompt: str, max_tokens: int = 300) -> str:
         model="claude-opus-4-7",
         max_tokens=max_tokens,
         system=(
-            "You are CryptoGort — a crypto enthusiast, blockchain advocate, and real estate "
-            "tokenization pioneer on X. Your voice is confident, engaging, and community-focused. "
-            "You write punchy tweets that educate and entertain your followers. "
+            "You are CryptoGort — a sharp, no-BS financial commentator on X. "
+            "You cover stocks, crypto, macro, and world events with attitude. "
+            "Your style is bold, provocative, and unapologetically opinionated — you call out "
+            "market BS, name names, drop hot takes, and stir up debate to drive engagement. "
+            "Think financial Twitter meets late-night radio host. You're not rude or offensive, "
+            "but you're edgy, irreverent, and always say what others are thinking but won't say. "
+            "You occasionally drop strategy gems that make followers feel like insiders. "
             "Always stay under 280 characters. Never wrap the tweet in quotes."
         ),
         messages=[{"role": "user", "content": prompt}],
@@ -29,40 +33,46 @@ def _ask_claude(prompt: str, max_tokens: int = 300) -> str:
 
 def generate_premarket_post(market_data: dict, news: list[dict]) -> str:
     market_str = format_market_summary(market_data) if market_data else "(data unavailable)"
-    headlines = "\n".join(f"• {n['title']}" for n in news[:4]) if news else "(no headlines available)"
+    headlines = "\n".join(f"• {n['title']}" for n in news[:5]) if news else "(no headlines available)"
 
     prompt = (
-        "Write a pre-market tweet (before 9:30 AM ET market open) that:\n"
-        "- Highlights 1-2 key price levels or moves worth watching today\n"
-        "- Weaves in a relevant news angle if fitting\n"
-        "- Ends with an engaging hook or question for followers\n"
-        "- Includes 2-3 hashtags (e.g. #Crypto #Bitcoin #Markets)\n\n"
-        f"Live market data:\n{market_str}\n\n"
-        f"Top headlines:\n{headlines}"
+        "Write a pre-market tweet for 8:00 AM ET. Be loud and opinionated — tell people exactly "
+        "what's about to happen and why Wall Street doesn't want them to know. "
+        "Call out a key level to watch, drop a spicy take on a news headline, and end with "
+        "a question or call-to-action that makes followers feel like they'd be idiots to ignore it. "
+        "2-3 punchy hashtags.\n\n"
+        f"Market data:\n{market_str}\n\n"
+        f"Headlines:\n{headlines}"
     )
     return _ask_claude(prompt)
 
 
-def generate_meme_post() -> str:
-    prompt = (
-        "Write a funny, relatable crypto/trading meme tweet for 12:00 PM midday. "
-        "Think: trader humor, HODLer mindset, or a witty observation about the market mood. "
-        "Keep it light and shareable. 1-2 hashtags max."
-    )
-    return _ask_claude(prompt, max_tokens=150)
-
-
-def generate_recap_post(market_data: dict, news: list[dict]) -> str:
+def generate_midday_post(market_data: dict, news: list[dict]) -> str:
     market_str = format_market_summary(market_data) if market_data else "(data unavailable)"
     headlines = "\n".join(f"• {n['title']}" for n in news[:4]) if news else "(no headlines available)"
 
     prompt = (
-        "Write an end-of-day market recap tweet (markets just closed at 4 PM ET) that:\n"
-        "- Summarizes the biggest move or story of the day in 1 sentence\n"
-        "- Gives your take on what it means for crypto/blockchain\n"
-        "- Closes with a forward-looking thought or question for tomorrow\n"
-        "- Includes 2-3 hashtags\n\n"
-        f"Final market data:\n{market_str}\n\n"
-        f"Today's top stories:\n{headlines}"
+        "Write a midday market tweet for 12:00 PM ET. Mix humor with a real market insight — "
+        "could be a meme-style observation, a savage hot take on something happening in the market "
+        "right now, or a strategy tip disguised as a joke. Make it shareable and controversial enough "
+        "that people want to reply. 1-2 hashtags.\n\n"
+        f"Current market snapshot:\n{market_str}\n\n"
+        f"What's happening:\n{headlines}"
+    )
+    return _ask_claude(prompt, max_tokens=200)
+
+
+def generate_recap_post(market_data: dict, news: list[dict]) -> str:
+    market_str = format_market_summary(market_data) if market_data else "(data unavailable)"
+    headlines = "\n".join(f"• {n['title']}" for n in news[:5]) if news else "(no headlines available)"
+
+    prompt = (
+        "Write a market close recap tweet for 4:15 PM ET. Be brutally honest about what happened "
+        "today — who got wrecked, who called it right, what the numbers actually mean. "
+        "Drop a forward-looking strategy take for tomorrow or the week ahead. "
+        "Make followers feel like they just got a briefing most people pay thousands for. "
+        "End with something that makes them want to come back tomorrow. 2-3 hashtags.\n\n"
+        f"Closing market data:\n{market_str}\n\n"
+        f"Today's big stories:\n{headlines}"
     )
     return _ask_claude(prompt)

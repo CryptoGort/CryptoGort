@@ -1,14 +1,12 @@
 """
 CryptoGort X Automation
 Scheduled posts (all times Eastern):
-  08:30 - Pre-market commentary
-  12:00 - Midday meme
-  16:05 - Market recap
+  08:00 - Pre-market commentary
+  12:00 - Midday market + meme post
+  16:15 - Market recap + strategy
 """
 
-import os
 import logging
-from datetime import datetime
 
 import pytz
 from dotenv import load_dotenv
@@ -16,8 +14,8 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 
 load_dotenv()
 
-from market_data import get_market_data, get_crypto_news
-from content import generate_premarket_post, generate_meme_post, generate_recap_post
+from market_data import get_market_data, get_news
+from content import generate_premarket_post, generate_midday_post, generate_recap_post
 from poster import post_tweet
 
 logging.basicConfig(
@@ -34,7 +32,7 @@ def job_premarket():
     log.info("Running pre-market post...")
     try:
         market_data = get_market_data()
-        news = get_crypto_news()
+        news = get_news()
         tweet = generate_premarket_post(market_data, news)
         log.info("Tweet:\n%s", tweet)
         post_tweet(tweet)
@@ -43,22 +41,24 @@ def job_premarket():
         log.exception("Pre-market post failed")
 
 
-def job_meme():
-    log.info("Running noon meme post...")
+def job_midday():
+    log.info("Running midday post...")
     try:
-        tweet = generate_meme_post()
+        market_data = get_market_data()
+        news = get_news()
+        tweet = generate_midday_post(market_data, news)
         log.info("Tweet:\n%s", tweet)
         post_tweet(tweet)
-        log.info("Meme post complete.")
+        log.info("Midday post complete.")
     except Exception:
-        log.exception("Meme post failed")
+        log.exception("Midday post failed")
 
 
 def job_recap():
     log.info("Running market recap post...")
     try:
         market_data = get_market_data()
-        news = get_crypto_news()
+        news = get_news()
         tweet = generate_recap_post(market_data, news)
         log.info("Tweet:\n%s", tweet)
         post_tweet(tweet)
@@ -70,14 +70,13 @@ def job_recap():
 def main():
     scheduler = BlockingScheduler(timezone=ET)
 
-    scheduler.add_job(job_premarket, "cron", hour=8, minute=30, id="premarket")
-    scheduler.add_job(job_meme, "cron", hour=12, minute=0, id="meme")
-    scheduler.add_job(job_recap, "cron", hour=16, minute=5, id="recap")
+    scheduler.add_job(job_premarket, "cron", hour=8,  minute=0,  id="premarket")
+    scheduler.add_job(job_midday,    "cron", hour=12, minute=0,  id="midday")
+    scheduler.add_job(job_recap,     "cron", hour=16, minute=15, id="recap")
 
-    log.info("CryptoGort scheduler started. Posts at 8:30 AM, 12:00 PM, 4:05 PM ET.")
-    log.info("Next scheduled runs:")
+    log.info("CryptoGort scheduler started. Posts at 8:00 AM, 12:00 PM, 4:15 PM ET.")
     for job in scheduler.get_jobs():
-        log.info("  %s → %s", job.id, job.next_run_time)
+        log.info("  %s → next run %s", job.id, job.next_run_time)
 
     try:
         scheduler.start()
