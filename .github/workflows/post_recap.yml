@@ -2,7 +2,7 @@ name: Market Recap Post (4:15 PM ET)
 
 on:
   schedule:
-    - cron: "15 20 * * 1-5"  # 4:15 PM ET (UTC-4 EDT), weekdays only
+    - cron: "13 20 * * 1-5"  # ~4:15 PM ET (offset to avoid quarter-hour delays)
   workflow_dispatch:
 
 jobs:
