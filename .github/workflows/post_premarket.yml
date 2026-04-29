@@ -22,8 +22,8 @@ jobs:
 
       - run: python test_post.py premarket --post
         env:
-          X_API_KEY: ${{ secrets.X_API_KEY }}
-          X_API_SECRET: ${{ secrets.X_API_SECRET }}
-          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
-          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          X_API_KEY: ${{ secrets.XAPI }}
+          X_API_SECRET: ${{ secrets.XAPISECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.XACCESSTOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.XTOKENSECRET }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPICAPIKEY }}
