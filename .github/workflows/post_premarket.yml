@@ -1,0 +1,29 @@
+name: Pre-Market Post (8:00 AM ET)
+
+on:
+  schedule:
+    - cron: "0 12 * * 1-5"  # 8:00 AM ET (UTC-4 EDT), weekdays only
+  workflow_dispatch:          # allows manual trigger from GitHub UI
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/automate-x-posts-3EXJn
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - run: pip install -r requirements.txt
+
+      - run: python test_post.py premarket --post
+        env:
+          X_API_KEY: ${{ secrets.XAPI }}
+          X_API_SECRET: ${{ secrets.XAPISECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.XACCESSTOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.XTOKENSECRET }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPICAPIKEY }}
