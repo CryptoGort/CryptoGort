@@ -36,8 +36,23 @@ def _ask_claude(prompt: str, max_tokens: int = 120) -> str:
     if text.startswith('"') and text.endswith('"'):
         text = text[1:-1].strip()
     if len(text) > 280:
-        text = text[:277].rstrip() + "..."
+        text = _trim_clean(text, 280)
     return text
+
+
+def _trim_clean(text: str, limit: int) -> str:
+    """Trim to <= limit chars at the last sentence end, else last word boundary."""
+    if len(text) <= limit:
+        return text
+    window = text[:limit]
+    for punct in (". ", "! ", "? ", ".\n", "!\n", "?\n"):
+        idx = window.rfind(punct)
+        if idx >= limit - 80:
+            return text[: idx + 1].rstrip()
+    idx = window.rfind(" ")
+    if idx > 0:
+        return text[:idx].rstrip()
+    return window.rstrip()
 
 
 def generate_premarket_post(market_data: dict, news: list[dict]) -> str:
