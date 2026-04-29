@@ -2,7 +2,7 @@ name: Pre-Market Post (8:00 AM ET)
 
 on:
   schedule:
-    - cron: "0 12 * * 1-5"  # 8:00 AM ET (UTC-4 EDT), weekdays only
+    - cron: "57 11 * * 1-5"  # ~8:00 AM ET (offset to avoid top-of-hour delays)
   workflow_dispatch:          # allows manual trigger from GitHub UI
 
 jobs:

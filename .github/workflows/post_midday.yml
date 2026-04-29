@@ -2,7 +2,7 @@ name: Midday Post (12:00 PM ET)
 
 on:
   schedule:
-    - cron: "0 16 * * 1-5"  # 12:00 PM ET (UTC-4 EDT), weekdays only
+    - cron: "57 15 * * 1-5"  # ~12:00 PM ET (offset to avoid top-of-hour delays)
   workflow_dispatch:
 
 jobs:
