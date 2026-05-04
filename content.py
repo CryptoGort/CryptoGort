@@ -12,7 +12,7 @@ def _get_client() -> anthropic.Anthropic:
     return _client
 
 
-def _ask_claude(prompt: str, max_tokens: int = 120) -> str:
+def _ask_claude(prompt: str, max_tokens: int = 160) -> str:
     message = _get_client().messages.create(
         model="claude-opus-4-7",
         max_tokens=max_tokens,
@@ -29,6 +29,7 @@ def _ask_claude(prompt: str, max_tokens: int = 120) -> str:
             "feel like insiders. Mention specific tickers when relevant (SPY, QQQ, IWM, single names). "
             "Never use hyphens anywhere in the tweet. Write the way a real person talks, not like a list or a bot. "
             "End every tweet with exactly one relevant hashtag. No more, no less. "
+            "Keep the body short enough that the closing hashtag always fits. Aim for under 240 characters total. "
             "Always stay under 280 characters. Never wrap the tweet in quotes."
         ),
         messages=[{"role": "user", "content": prompt}],
