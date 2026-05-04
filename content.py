@@ -28,6 +28,7 @@ def _ask_claude(prompt: str, max_tokens: int = 120) -> str:
             "0DTE, put/call ratios, OPEX, premium selling, defined risk plays) that make followers "
             "feel like insiders. Mention specific tickers when relevant (SPY, QQQ, IWM, single names). "
             "Never use hyphens anywhere in the tweet. Write the way a real person talks, not like a list or a bot. "
+            "End every tweet with exactly one relevant hashtag. No more, no less. "
             "Always stay under 280 characters. Never wrap the tweet in quotes."
         ),
         messages=[{"role": "user", "content": prompt}],
@@ -41,7 +42,6 @@ def _ask_claude(prompt: str, max_tokens: int = 120) -> str:
 
 
 def _trim_clean(text: str, limit: int) -> str:
-    """Trim to <= limit chars at the last sentence end, else last word boundary."""
     if len(text) <= limit:
         return text
     window = text[:limit]
@@ -62,10 +62,9 @@ def generate_premarket_post(market_data: dict, news: list[dict]) -> str:
     prompt = (
         "Write a pre-market tweet for 8:00 AM ET. Lead with the broad market setup. "
         "Tie in one of the news headlines as the catalyst. Call out a key level on SPY, QQQ, "
-        "or a specific ticker. Optionally mention an options angle if it fits naturally "
-        "(IV setup, premium opportunity, OPEX flows, etc) but don't force it. "
+        "or a specific ticker. Optionally mention an options angle if it fits naturally. "
         "End with a question or call to action that punches. "
-        "HARD RULE: tweet MUST be 250 characters or less, hashtags included. Count every character. Cut filler. Punch hard, finish clean. A great 200 char tweet beats a stuffed 280 char one. Output ONLY the tweet, nothing else. No hyphens anywhere. Write it the way someone actually talks. 2 or 3 punchy hashtags.\n\n"
+        "No hyphens. Write it the way someone actually talks. Stay under 250 characters.\n\n"
         f"Market data:\n{market_str}\n\n"
         f"Headlines:\n{headlines}"
     )
@@ -78,11 +77,10 @@ def generate_midday_post(market_data: dict, news: list[dict]) -> str:
 
     prompt = (
         "Write a midday market tweet for 12:00 PM ET. Anchor it to what is actually happening "
-        "in the tape right now or a news event breaking today. Mix in humor or a savage hot take. "
-        "Bonus if you sneak in an options observation (gamma pin, 0DTE flow, IV crush risk, "
-        "premium selling setup) without sounding like a textbook. "
-        "Make it something people want to screenshot and share. No hyphens anywhere. "
-        "Write it the way someone actually talks. 1 or 2 hashtags.\n\n"
+        "in the tape or a news event today. Mix in humor or a savage hot take. "
+        "Bonus if you sneak in an options observation without sounding like a textbook. "
+        "Make it something people want to screenshot and share. "
+        "No hyphens. Write it the way someone actually talks. Stay under 250 characters.\n\n"
         f"Current market snapshot:\n{market_str}\n\n"
         f"What's happening:\n{headlines}"
     )
@@ -96,11 +94,9 @@ def generate_recap_post(market_data: dict, news: list[dict]) -> str:
     prompt = (
         "Write a market close recap tweet for 4:15 PM ET. Be brutally honest about what happened today "
         "and tie the move to the news driver behind it. Say who got wrecked, who called it right. "
-        "Drop a forward looking strategy take for tomorrow or the week ahead, ideally with an options "
-        "lens (premium selling, hedges, IV setups, spreads, defined risk plays) but only if it fits. "
-        "Make followers feel like they just got a briefing most people pay thousands for. "
+        "Drop a forward looking strategy take for tomorrow or the week ahead. "
         "End with something that makes them want to come back tomorrow. "
-        "HARD RULE: tweet MUST be 250 characters or less, hashtags included. Count every character. Cut filler. Punch hard, finish clean. A great 200 char tweet beats a stuffed 280 char one. Output ONLY the tweet, nothing else. No hyphens anywhere. Write it the way someone actually talks. 2 or 3 hashtags.\n\n"
+        "No hyphens. Write it the way someone actually talks. Stay under 250 characters.\n\n"
         f"Closing market data:\n{market_str}\n\n"
         f"Today's big stories:\n{headlines}"
     )
